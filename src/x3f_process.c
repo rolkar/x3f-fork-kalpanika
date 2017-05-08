@@ -58,7 +58,7 @@ static int sum_area_sqdev(x3f_area16_t area, int colors, double *mean,
 
 static int get_black_level(x3f_t *x3f,
 			   x3f_area16_t *image, int rescale, int colors,
-			   double *black_level, double *black_dev)
+			   double *black_level_chosen, double *black_dev_chosen)
 {
   uint64_t *black, *black_sum;
   double *black_sqdev, *black_sqdev_sum;
@@ -128,7 +128,7 @@ static int get_black_level(x3f_t *x3f,
   if (pixels_sum == 0) return 0;
 
   for (i=0; i<colors; i++)
-    black_level[i] = (double)black_sum[i]/pixels_sum;
+    black_level_chosen[i] = (double)black_sum[i]/pixels_sum;
 
   pixels_sum = 0;
   black_sqdev = alloca(colors*sizeof(double));
@@ -138,7 +138,7 @@ static int get_black_level(x3f_t *x3f,
   for (i=0; i<4; i++)
     if (use[i]) {
       int color;
-      int pixels = sum_area_sqdev(area[i], colors, black_level, black_sqdev);
+      int pixels = sum_area_sqdev(area[i], colors, black_level_chosen, black_sqdev);
 
       pixels_sum += pixels;
 
@@ -152,13 +152,13 @@ static int get_black_level(x3f_t *x3f,
   x3f_printf(DEBUG, "  SUM\n");
 
   for (i=0; i<colors; i++) {
-    black_dev[i] = sqrt(black_sqdev_sum[i]/pixels_sum);
+    black_dev_chosen[i] = sqrt(black_sqdev_sum[i]/pixels_sum);
     x3f_printf(DEBUG, "    level[%d] = %f\n",
 	       i,
-	       black_level[i]);
+	       black_level_chosen[i]);
     x3f_printf(DEBUG, "    dev[%d] = %g\n",
 	       i,
-	       black_dev[i]);
+	       black_dev_chosen[i]);
   }
 
   return 1;
