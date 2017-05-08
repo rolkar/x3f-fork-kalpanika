@@ -199,12 +199,19 @@ static int x3f_transform_rect_to_keep_image(x3f_t *x3f,
   } else
     return 0;
 
-  if (x3f_transform_rect_to_keep_image(x3f, image, rescale, rect)) {
-    assert(x3f_crop_area(rect, image, crop));
-    return 1;
-  }
+  if (!x3f_transform_rect_to_keep_image(x3f, image, rescale, rect))
+    return 0;
 
-  return 0;
+  x3f_printf(DEBUG, "Crop rect %s [%d,%d,%d,%d]\n",
+	     which_side==0 ? "LEFT" : "RIGHT",
+	     rect[0], rect[1], rect[2], rect[3]);
+  x3f_printf(DEBUG, "Image [%d,%d]\n",
+	     image->columns, image->rows);
+
+  /* This should not fail if x3f_get_camf_rect is implemented correctly */
+  assert(x3f_crop_area(rect, image, crop));
+
+  return 1;
 }
 
 /* extern */ int x3f_crop_area_camf(x3f_t *x3f, char *name,
@@ -214,8 +221,14 @@ static int x3f_transform_rect_to_keep_image(x3f_t *x3f,
   uint32_t rect[4];
 
   if (!x3f_get_camf_rect(x3f, name, image, rescale, rect)) return 0;
-  /* This should not fail as long as x3f_get_camf_rect is implemented
-     correctly */
+
+  x3f_printf(DEBUG, "Crop rect %s [%d,%d,%d,%d]\n",
+	     name,
+	     rect[0], rect[1], rect[2], rect[3]);
+  x3f_printf(DEBUG, "Image [%d,%d]\n",
+	     image->columns, image->rows);
+
+  /* This should not fail if x3f_get_camf_rect is implemented correctly */
   assert(x3f_crop_area(rect, image, crop));
 
   return 1;
